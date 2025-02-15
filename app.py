@@ -2,8 +2,11 @@
 
 from flask import Flask, jsonify, request
 import docker
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
+
 client = docker.from_env()
 
 
@@ -23,7 +26,7 @@ def docker_stats(container_id):
             - stats["precpu_stats"]["system_cpu_usage"]
         )
         cpu_percent = (
-            (cpu_delta / system_delta) * len(stats["cpu_stats"]["online_cpus"]) * 100
+            (cpu_delta / system_delta) * stats["cpu_stats"]["online_cpus"] * 100
         )
 
         # Memory usage
@@ -45,8 +48,8 @@ def docker_stats(container_id):
         return jsonify(data)
     except docker.errors.NotFound:
         return jsonify({"error": "Container not found"}), 404
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    # except Exception as e:
+    #     return jsonify({"error": str(e)}), 500
 
 
 if __name__ == "__main__":
