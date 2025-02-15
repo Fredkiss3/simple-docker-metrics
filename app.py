@@ -1,6 +1,6 @@
 # app.py
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify
 import docker
 from flask_cors import CORS
 
