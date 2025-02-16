@@ -41,6 +41,8 @@ type ApiData = {
 	memory_usage: number;
 	rx_bytes: number;
 	tx_bytes: number;
+	read_bytes: number;
+	write_bytes: number;
 };
 const containerMetricsQuery = (containerId?: string | null) =>
 	queryOptions({
@@ -83,6 +85,8 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 			memoryUsage: number;
 			netOut: number;
 			netIn: number;
+			diskRead: number;
+			diskWrites: number;
 		}>
 	>([]);
 
@@ -121,6 +125,8 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 							memoryUsage: data.memory_usage / mb,
 							netOut: data.tx_bytes / mb,
 							netIn: data.rx_bytes / mb,
+							diskRead: data.read_bytes / mb,
+							diskWrites: data.write_bytes / mb,
 						},
 					];
 				});
@@ -153,7 +159,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 				/>
 				<Button>Search</Button>
 			</Form>
-			<div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+			<div className="grid grid-cols-1 gap-5 md:grid-cols-2">
 				<CustomAreaChart
 					data={metrics.slice(-20)}
 					title="CPU"
@@ -175,7 +181,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 					config={{
 						memoryUsage: {
 							label: "memory",
-							color: "hsl(var(--chart-1))",
+							color: "hsl(var(--chart-2))",
 							icon: MicrochipIcon,
 						},
 					}}
@@ -184,23 +190,41 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 				/>
 				<CustomAreaChart
 					data={metrics.slice(-20)}
-					className="col-span-2"
 					title="Network"
 					description="in bytes"
 					config={{
 						netOut: {
 							label: "outbound",
-							color: "hsl(var(--chart-1))",
-							icon: ArrowUpRight,
+							color: "hsl(var(--chart-3))",
+							// icon: ArrowUpRight,
 						},
 						netIn: {
 							label: "inbound",
-							color: "hsl(var(--chart-2))",
-							icon: ArrowDownRight,
+							color: "hsl(var(--chart-4))",
+							// icon: ArrowDownRight,
 						},
 					}}
 					valueFormatter={(value: number) => `${value.toFixed(2)}mb`}
 					areas={["netOut", "netIn"]}
+				/>
+				<CustomAreaChart
+					data={metrics.slice(-20)}
+					title="Disk I/O"
+					description="In MB"
+					config={{
+						diskRead: {
+							label: "read",
+							color: "hsl(var(--chart-5))",
+							// icon: ArrowUpRight,
+						},
+						diskWrites: {
+							label: "writes",
+							color: "hsl(var(--chart-1))",
+							// icon: ArrowDownRight,
+						},
+					}}
+					valueFormatter={(value: number) => `${value.toFixed(2)}mb`}
+					areas={["diskRead", "diskWrites"]}
 				/>
 			</div>
 		</main>
@@ -261,19 +285,15 @@ function CustomAreaChart({
 							tickMargin={8}
 						/>
 
-						{areas.map((key) => (
-							<ChartTooltip
-								cursor={false}
-								key={key}
-								content={
-									<ChartTooltipContent
-										hideLabel
-										labelKey={key}
-										valueFormatter={valueFormatter}
-									/>
-								}
-							/>
-						))}
+						<ChartTooltip
+							cursor={false}
+							content={
+								<ChartTooltipContent
+									hideLabel
+									valueFormatter={valueFormatter}
+								/>
+							}
+						/>
 
 						{areas.map((key) => {
 							return (

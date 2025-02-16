@@ -37,12 +37,26 @@ def docker_stats(container_id):
         rx_bytes = sum(network["rx_bytes"] for network in stats["networks"].values())
         tx_bytes = sum(network["tx_bytes"] for network in stats["networks"].values())
 
+        # Disk I/O usage
+        read_bytes = sum(
+            io["value"]
+            for io in stats["blkio_stats"]["io_service_bytes_recursive"]
+            if io["op"] == "read"
+        )
+        write_bytes = sum(
+            io["value"]
+            for io in stats["blkio_stats"]["io_service_bytes_recursive"]
+            if io["op"] == "write"
+        )
+
         data = {
             "cpu_percent": cpu_percent,
             "memory_usage": memory_usage,
             "memory_limit": memory_limit,
             "rx_bytes": rx_bytes,
             "tx_bytes": tx_bytes,
+            "read_bytes": read_bytes,
+            "write_bytes": write_bytes,
         }
 
         return jsonify(data)
