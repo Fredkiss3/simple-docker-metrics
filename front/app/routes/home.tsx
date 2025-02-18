@@ -171,6 +171,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 							icon: CpuIcon,
 						},
 					}}
+					domain={[0, 100]}
 					areas={["cpuPercent"]}
 					valueFormatter={(value: number) => `${value.toFixed(2)}%`}
 				/>
@@ -186,6 +187,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 						},
 					}}
 					areas={["memoryUsage"]}
+					domain={[0, 12008]}
 					valueFormatter={(value: number) => `${value.toFixed(2)}mb`}
 				/>
 				<CustomAreaChart
@@ -247,6 +249,7 @@ function CustomAreaChart({
 	areas,
 	config,
 	valueFormatter,
+	domain,
 }: {
 	data: Array<{
 		index: number;
@@ -257,6 +260,7 @@ function CustomAreaChart({
 	valueFormatter?: (value: any) => string;
 	className?: string;
 	areas: Array<string>;
+	domain?: [min: number, max: number];
 }) {
 	return (
 		<Card className={className}>
@@ -277,7 +281,7 @@ function CustomAreaChart({
 						}}
 					>
 						<CartesianGrid vertical={false} />
-						<YAxis tickLine={false} axisLine={false} />
+						<YAxis tickLine={false} axisLine={false} domain={domain} />
 						<XAxis
 							dataKey="index"
 							tickLine={false}
